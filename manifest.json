@@ -1,0 +1,17 @@
+{
+  "name": "Switch PZU ↔ ID",
+  "short_name": "PZU Calc",
+  "description": "Calculator rapid de spread pentru traderii PowerPeak Trading",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111216",
+  "theme_color": "#111216",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
