@@ -1,0 +1,25 @@
+{
+  "name": "switch-pzu-calc",
+  "version": "1.0.0",
+  "description": "Minimalist macOS Calculator for Switch PZU ↔ ID Trading",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/calc.test.js"
+  },
+  "keywords": [
+    "pzu",
+    "id",
+    "trading",
+    "calculator",
+    "macos"
+  ],
+  "author": "PowerPeak Trading",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.2.0"
+  },
+  "dependencies": {
+    "vercel": "^62.2.0"
+  }
+}
