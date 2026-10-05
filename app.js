@@ -589,3 +589,34 @@ renderMode();
 renderAukeraInputs();
 recalculateAukera();
 setApp(state.activeApp || 'pzu');
+
+// ================= UPDATE NOTIFICATIONS & WHAT'S NEW =================
+const CURRENT_VERSION = 'v1.3';
+const refreshAppBtn = document.getElementById('refreshAppBtn');
+const whatsNewModal = document.getElementById('whatsNewModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+
+if (refreshAppBtn) {
+  refreshAppBtn.addEventListener('click', () => {
+    window.location.reload();
+  });
+}
+
+function checkWhatsNew() {
+  const savedVersion = localStorage.getItem('app_version');
+  if (savedVersion !== CURRENT_VERSION) {
+    if (whatsNewModal) {
+      whatsNewModal.classList.add('show');
+    }
+    localStorage.setItem('app_version', CURRENT_VERSION);
+  }
+}
+
+if (closeModalBtn) {
+  closeModalBtn.addEventListener('click', () => {
+    whatsNewModal.classList.remove('show');
+  });
+}
+
+// Show What's New if updated (slight delay for better UX)
+setTimeout(checkWhatsNew, 600);

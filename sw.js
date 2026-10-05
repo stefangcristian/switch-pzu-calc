@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pzu-calc-cache';
+const CACHE_NAME = 'pzu-calc-v1.3';
 const urlsToCache = [
   './',
   './index.html',

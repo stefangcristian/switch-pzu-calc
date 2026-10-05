@@ -300,9 +300,28 @@
 
     <!-- Footer -->
     <footer class="calc-footer" id="calcFooter">
-      <span id="footerBrand">PowerPeak Trading • PZU ↔ ID v1.2</span>
+      <span id="footerBrand">PowerPeak Trading • PZU ↔ ID v1.3</span>
       <span class="hint" id="footerHint">Tab / Shift+Tab • Recalculare Live</span>
     </footer>
+
+    <!-- Update Toast -->
+    <div id="updateToast" class="update-toast">
+      <span>Update disponibil!</span>
+      <button id="refreshAppBtn">Refresh</button>
+    </div>
+
+    <!-- Modal What's New -->
+    <div id="whatsNewModal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>🚀 Versiune Nouă (v1.3)</h3>
+        <ul class="changelog">
+          <li>✨ Aplicația este acum PWA (se instalează pe Desktop/Telefon).</li>
+          <li>💡 Modul Network-First implementat pentru actualizări silențioase.</li>
+          <li>🔄 Notificări în timp real când e disponibil un update (acest ecran!).</li>
+        </ul>
+        <button id="closeModalBtn" class="modal-close-btn">Am înțeles</button>
+      </div>
+    </div>
   </div>
 
   <script src="calc-engine.js"></script>
@@ -310,7 +329,17 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js');
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                const toast = document.getElementById('updateToast');
+                if(toast) toast.classList.add('show');
+              }
+            });
+          });
+        });
       });
     }
   </script>

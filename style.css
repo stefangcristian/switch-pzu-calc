@@ -850,3 +850,116 @@ input[type=number] {
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
+
+/* ================= UPDATE TOAST & MODAL ================= */
+.update-toast {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(16, 185, 129, 0.95);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+.update-toast.show {
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.calculator-window[data-theme="white"] .update-toast {
+  background: rgba(37, 99, 235, 0.95);
+}
+.update-toast button {
+  background: white;
+  color: #059669;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 10px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.calculator-window[data-theme="white"] .update-toast button {
+  color: #2563eb;
+}
+.update-toast button:active {
+  transform: scale(0.95);
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-content {
+  background: var(--window-bg);
+  border: 1px solid var(--window-border);
+  padding: 24px;
+  border-radius: 16px;
+  width: 85%;
+  max-width: 320px;
+  box-shadow: var(--window-shadow);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-overlay.show .modal-content {
+  transform: scale(1);
+}
+.modal-content h3 {
+  font-size: 15px;
+  margin-bottom: 14px;
+  color: var(--text-main);
+  text-align: center;
+}
+.changelog {
+  list-style: none;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.changelog li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.modal-close-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--segment-active-bg);
+  color: var(--segment-active-text);
+  border: 1px solid var(--segmented-border);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.calculator-window[data-theme="white"] .modal-close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
