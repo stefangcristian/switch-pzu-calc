@@ -305,7 +305,7 @@ body {
   padding: 6px 14px 8px;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  overflow-y: auto;
   position: relative;
   z-index: 2;
   scrollbar-width: thin;
