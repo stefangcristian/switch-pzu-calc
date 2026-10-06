@@ -781,15 +781,27 @@ const sysVolDown = document.getElementById('sysVolDown');
 
 function updateTranselectricaState(data) {
   if(!sysCurrentQh) return;
+  sysCurrentQh.textContent = `Sfert Curent: ${data.qh}`;
+  
+  if(sysVolUp) sysVolUp.textContent = data.volUp !== "N/A" ? `${data.volUp} MW` : "N/A";
+  if(sysVolDown) sysVolDown.textContent = data.volDown !== "N/A" ? `${data.volDown} MW` : "N/A";
 
-  // Dacă avem date de la API (sau mock), le afișăm:
-  // Presupunem un format standard cu imbalanceMw
+  if (data.imbalanceMw === "N/A") {
+      sysImbalance.textContent = `În așteptare...`;
+      sysStatus.textContent = 'DATE INDISPONIBILE';
+      sysStatus.style.color = 'var(--text-dim)';
+      sysImbalance.style.color = 'var(--text-dim)';
+      sysMarginalDeficit.textContent = '- €/MWh';
+      sysMarginalSurplus.textContent = '- €/MWh';
+      sysRecommendationBox.style.background = 'rgba(255,255,255,0.05)';
+      sysRecommendationBox.style.borderLeftColor = 'var(--text-dim)';
+      sysRecommendationText.textContent = 'Transelectrica încă nu a publicat datele pentru acest sfert de oră.';
+      return;
+  }
+  
   const isSurplus = data.imbalanceMw > 0;
   
-  sysCurrentQh.textContent = `Sfert Curent: ${data.qh}`;
   sysImbalance.textContent = `${data.imbalanceMw > 0 ? '+' : ''}${data.imbalanceMw} MW`;
-  if(sysVolUp) sysVolUp.textContent = data.volUp !== "N/A" ? `${data.volUp} MW` : "- MW";
-  if(sysVolDown) sysVolDown.textContent = data.volDown !== "N/A" ? `${data.volDown} MW` : "- MW";
   
   if(isSurplus) {
       sysStatus.textContent = 'EXCEDENT (Surplus)';
@@ -809,8 +821,8 @@ function updateTranselectricaState(data) {
       sysRecommendationText.textContent = 'Prețurile ID vor tinde să CREASCĂ. Cumpără acum sau Așteaptă pentru a vinde mai scump.';
   }
 
-  sysMarginalDeficit.textContent = `${data.priceDeficit.toFixed(2)} €/MWh`;
-  sysMarginalSurplus.textContent = `${data.priceSurplus.toFixed(2)} €/MWh`;
+  sysMarginalDeficit.textContent = data.priceDeficit === "N/A" ? "N/A" : `${data.priceDeficit.toFixed(2)} €/MWh`;
+  sysMarginalSurplus.textContent = data.priceSurplus === "N/A" ? "N/A" : `${data.priceSurplus.toFixed(2)} €/MWh`;
 }
 
 // Procesare date live de la Vercel API (care face fetch la Transelectrica)
