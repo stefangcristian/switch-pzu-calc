@@ -135,17 +135,7 @@ const aukeraProfitHighlightDisplay = document.getElementById('aukeraProfitHighli
 const aukeraShareViberBtn = document.getElementById('aukeraShareViberBtn');
 const aukeraViberLabel = document.getElementById('aukeraViberLabel');
 
-// Arbitrage DOM Elements
-const arbQhBuyInput = document.getElementById('arbQhBuy');
-const arbQhSellInput = document.getElementById('arbQhSell');
-const arbPriceBuyInput = document.getElementById('arbPriceBuy');
-const arbPriceSellInput = document.getElementById('arbPriceSell');
-const arbQtyMwInput = document.getElementById('arbQtyMw');
-
-const arbSpreadDisplay = document.getElementById('arbSpreadDisplay');
-const arbEnergyInDisplay = document.getElementById('arbEnergyInDisplay');
-const arbEnergyOutDisplay = document.getElementById('arbEnergyOutDisplay');
-const arbProfitDisplay = document.getElementById('arbProfitDisplay');
+// Arbitrage DOM Elements - ELIMINATED (only keeping Transelectrica UI)
 
 const valRamp = document.getElementById('valRamp');
 const valInverter = document.getElementById('valInverter');
@@ -231,7 +221,7 @@ function setApp(appName) {
     pzuView.classList.remove('active');
     aukeraView.classList.remove('active');
     idArbitrageView.classList.add('active');
-    windowTitle.textContent = 'Arbitraj ID';
+    windowTitle.textContent = 'Status Sistem';
     footerBrand.textContent = 'PowerPeak Trading • Arbitraj ID';
     footerHint.textContent = 'Scanare & Validare Baterie';
     renderArbitrageInputs();
