@@ -290,6 +290,38 @@
       <!-- ================= 3. ID ARBITRAGE VIEW ================= -->
       <div id="idArbitrageView" class="calc-view">
         
+        <!-- NEW: Transelectrica System State -->
+        <section class="system-state-card" style="margin-bottom: 15px; padding: 12px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: #fff;">Stare Sistem (Transelectrica)</span>
+            <span id="sysCurrentQh" style="font-size: 11px; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 4px; color: var(--text-dim);">Sfert Curent: -</span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
+            <div style="display: flex; flex-direction: column;">
+              <span style="color: var(--text-dim);">Dezechilibru Estimat</span>
+              <strong id="sysImbalance" style="font-size: 13px; color: #fff;">- MW</strong>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="color: var(--text-dim);">Stare Sistem</span>
+              <strong id="sysStatus" style="font-size: 13px; color: #fff;">-</strong>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="color: var(--text-dim);">Preț Marginal (Deficit)</span>
+              <strong id="sysMarginalDeficit" style="font-size: 12px; color: var(--text-loss);">- €/MWh</strong>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="color: var(--text-dim);">Preț Marginal (Excedent)</span>
+              <strong id="sysMarginalSurplus" style="font-size: 12px; color: #10b981;">- €/MWh</strong>
+            </div>
+          </div>
+          
+          <div style="margin-top: 10px; padding: 8px; background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; border-radius: 0 4px 4px 0;" id="sysRecommendationBox">
+            <span style="display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 3px; text-transform: uppercase; font-weight: 600;">Recomandare ID</span>
+            <strong id="sysRecommendationText" style="font-size: 12px; color: #fff;">-</strong>
+          </div>
+        </section>
+
         <!-- Input Section -->
         <section class="calc-section">
           <div class="input-row">

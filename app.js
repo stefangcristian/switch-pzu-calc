@@ -778,3 +778,76 @@ if (scanBrmBtn) {
   });
 }
 
+// ================= TRANSELECTRICA SYSTEM STATE LOGIC =================
+const sysCurrentQh = document.getElementById('sysCurrentQh');
+const sysImbalance = document.getElementById('sysImbalance');
+const sysStatus = document.getElementById('sysStatus');
+const sysMarginalDeficit = document.getElementById('sysMarginalDeficit');
+const sysMarginalSurplus = document.getElementById('sysMarginalSurplus');
+const sysRecommendationText = document.getElementById('sysRecommendationText');
+const sysRecommendationBox = document.getElementById('sysRecommendationBox');
+
+function updateTranselectricaState(data) {
+  if(!sysCurrentQh) return;
+
+  // Dacă avem date de la API (sau mock), le afișăm:
+  // Presupunem un format standard cu imbalanceMw
+  const isSurplus = data.imbalanceMw > 0;
+  
+  sysCurrentQh.textContent = `Sfert Curent: ${data.qh}`;
+  sysImbalance.textContent = `${data.imbalanceMw > 0 ? '+' : ''}${data.imbalanceMw} MW`;
+  
+  if(isSurplus) {
+      sysStatus.textContent = 'EXCEDENT (Surplus)';
+      sysStatus.style.color = '#10b981'; // Green
+      sysImbalance.style.color = '#10b981';
+      
+      sysRecommendationBox.style.background = 'rgba(16, 185, 129, 0.1)';
+      sysRecommendationBox.style.borderLeftColor = '#10b981';
+      sysRecommendationText.textContent = 'Prețurile ID vor tinde să SCADĂ. Așteaptă pentru Buy sau Vinde acum dacă ai preț bun.';
+  } else {
+      sysStatus.textContent = 'DEFICIT';
+      sysStatus.style.color = 'var(--text-loss)'; // Red
+      sysImbalance.style.color = 'var(--text-loss)';
+      
+      sysRecommendationBox.style.background = 'rgba(239, 68, 68, 0.1)';
+      sysRecommendationBox.style.borderLeftColor = 'var(--text-loss)';
+      sysRecommendationText.textContent = 'Prețurile ID vor tinde să CREASCĂ. Cumpără acum sau Așteaptă pentru a vinde mai scump.';
+  }
+
+  sysMarginalDeficit.textContent = `${data.priceDeficit.toFixed(2)} €/MWh`;
+  sysMarginalSurplus.textContent = `${data.priceSurplus.toFixed(2)} €/MWh`;
+}
+
+// Mock date pentru a testa interfața până primești linkurile:
+setInterval(() => {
+    if(state.activeApp === 'id-arbitrage') {
+        const d = new Date();
+        const mins = d.getMinutes();
+        const qhNum = Math.floor(mins / 15) + 1; // 1, 2, 3 sau 4
+        const h = d.getHours();
+        const qh = `H${h.toString().padStart(2, '0')} Q${qhNum}`;
+        
+        // Randomizare pentru demo
+        const isSurp = Math.random() > 0.5;
+        const imbalanceMw = isSurp ? Math.floor(Math.random() * 300) : -Math.floor(Math.random() * 300);
+        
+        updateTranselectricaState({
+            qh: qh,
+            imbalanceMw: imbalanceMw,
+            priceDeficit: 150 + Math.random() * 50,
+            priceSurplus: 10 + Math.random() * 20
+        });
+    }
+}, 15000); // Se updatează la 15 secunde vizual pentru demo
+
+// Inițializare la pornire tab
+setTimeout(() => {
+    updateTranselectricaState({
+        qh: "H13 Q2",
+        imbalanceMw: -145,
+        priceDeficit: 182.4,
+        priceSurplus: 45.2
+    });
+}, 500);
+
