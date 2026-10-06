@@ -836,8 +836,12 @@ async function fetchLiveTranselectrica() {
     // Sortăm descrescător după "from" ca să fim siguri că primul e cel mai recent
     const sorted = data.itemList.sort((a, b) => new Date(b.timeInterval.from) - new Date(a.timeInterval.from));
     
-    // Uneori ultimele pot fi goale (null la preturi). Căutăm primul care are estimatedSystemImbalance valid
-    const currentQh = sorted.find(item => item.estimatedSystemImbalance !== null && item.estimatedSystemImbalance !== undefined);
+    // Uneori ultimele pot fi goale (null la preturi) sau "N/A". Căutăm primul care are valid
+    const currentQh = sorted.find(item => 
+      item.estimatedSystemImbalance !== null && 
+      item.estimatedSystemImbalance !== undefined && 
+      item.estimatedSystemImbalance !== "N/A"
+    );
     
     if (currentQh) {
       const qhNum = currentQh.ISP; // 1-96
