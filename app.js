@@ -824,7 +824,8 @@ async function fetchLiveTranselectrica() {
   if (state.activeApp !== 'id-arbitrage') return;
   
   try {
-    const res = await fetch('/api/transelectrica');
+    // Folosim linkul absolut către Vercel, astfel încât să meargă și din aplicația Desktop (Electron) locală
+    const res = await fetch('https://pptcalc.vercel.app/api/transelectrica');
     if (!res.ok) throw new Error('API fetch failed');
     const data = await res.json();
     
