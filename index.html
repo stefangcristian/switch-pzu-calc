@@ -66,7 +66,7 @@
         </button>
         <button type="button" class="app-tab-btn" data-app="id-arbitrage">
           <svg class="tab-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-          <span>Arbitraj ID</span>
+          <span>Status Sistem</span>
         </button>
       </div>
     </div>
@@ -325,102 +325,6 @@
           </div>
         </section>
 
-        <!-- Input Section -->
-        <section class="calc-section">
-          <div class="input-row">
-            <div class="input-group">
-              <label for="arbQhBuy">QH Cumpărare (-)</label>
-              <div class="input-wrapper">
-                <input type="text" id="arbQhBuy" placeholder="ex: Q62" autocomplete="off" />
-              </div>
-            </div>
-            <div class="input-group">
-              <label for="arbQhSell">QH Vânzare (+)</label>
-              <div class="input-wrapper">
-                <input type="text" id="arbQhSell" placeholder="ex: Q82" autocomplete="off" />
-              </div>
-            </div>
-          </div>
-
-          <div class="input-row">
-            <div class="input-group">
-              <label for="arbPriceBuy">Preț Cumpărare ID (€)</label>
-              <div class="input-wrapper">
-                <input type="number" id="arbPriceBuy" placeholder="0.00" step="0.01" />
-              </div>
-            </div>
-            <div class="input-group">
-              <label for="arbPriceSell">Preț Vânzare ID (€)</label>
-              <div class="input-wrapper">
-                <input type="number" id="arbPriceSell" placeholder="0.00" step="0.01" />
-              </div>
-            </div>
-          </div>
-
-          <!-- NEW: BRM Scanner Section -->
-          <div class="scanner-section" style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <span style="font-size: 12px; font-weight: 600; color: #fff;">BRM Intraday Scanner</span>
-              <button id="scanBrmBtn" class="primary-btn" style="padding: 4px 10px; font-size: 11px; border-radius: 4px; background: var(--accent); color: #000; border: none; cursor: pointer; font-weight: bold;">Scanează Acum</button>
-            </div>
-            <div id="brmSuggestions" style="display: none; font-size: 11px; color: var(--text-dim);">
-              <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.1);">
-                <span style="color: var(--accent); font-weight: bold;">SUGESTIE SWITCH:</span><br>
-                Cumpără ID la: <strong id="brmSuggBuyPrice" style="color: white;">-</strong> € (QH: <span id="brmSuggBuyQh">-</span>)<br>
-                Vinde ID la: <strong id="brmSuggSellPrice" style="color: white;">-</strong> € (QH: <span id="brmSuggSellQh">-</span>)
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 3px;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span>Cost Cumpărare:</span> <strong id="brmSuggCost">-</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                  <span>Venit Vânzare:</span> <strong id="brmSuggRev">-</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; color: #10b981;">
-                  <span>Profit Estimat (după switch):</span> <strong id="brmSuggProfit">-</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="input-row">
-            <div class="input-group highlight-margin-row">
-              <label for="arbQtyMw">Cantitate Arbitraj (MW)</label>
-              <div class="input-wrapper">
-                <input type="number" id="arbQtyMw" placeholder="0" step="0.1" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Status / Validation constraints -->
-        <section class="calc-section" id="arbValidationSection" style="padding: 10px;">
-          <div style="font-size: 11px; color: var(--text-dim); display: flex; flex-direction: column; gap: 4px;">
-            <div class="validation-item" id="valRamp">✅ Rampa Continuă (Fără goluri)</div>
-            <div class="validation-item" id="valInverter">✅ Limita Invertor (Sub 140MW)</div>
-            <div class="validation-item" id="valSoc">✅ Baterie (RTE 85% aplicat)</div>
-          </div>
-        </section>
-
-        <!-- Output Section -->
-        <section class="calc-section output-section">
-          <div class="summary-line">
-            <span>Spread Brut ID:</span>
-            <strong id="arbSpreadDisplay">0.00 € / MWh</strong>
-          </div>
-          <div class="summary-line">
-            <span>Energie Cumpărată (In):</span>
-            <strong id="arbEnergyInDisplay">0.00 MWh</strong>
-          </div>
-          <div class="summary-line">
-            <span>Energie Vândută (Out):</span>
-            <strong id="arbEnergyOutDisplay">0.00 MWh</strong>
-          </div>
-          <div class="summary-line total-highlight">
-            <span>Profit Net Arbitraj:</span>
-            <strong id="arbProfitDisplay">0.00 €</strong>
-          </div>
-        </section>
 
       </div>
     </main>
