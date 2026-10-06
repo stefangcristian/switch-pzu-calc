@@ -776,6 +776,8 @@ const sysMarginalDeficit = document.getElementById('sysMarginalDeficit');
 const sysMarginalSurplus = document.getElementById('sysMarginalSurplus');
 const sysRecommendationText = document.getElementById('sysRecommendationText');
 const sysRecommendationBox = document.getElementById('sysRecommendationBox');
+const sysVolUp = document.getElementById('sysVolUp');
+const sysVolDown = document.getElementById('sysVolDown');
 
 function updateTranselectricaState(data) {
   if(!sysCurrentQh) return;
@@ -786,6 +788,8 @@ function updateTranselectricaState(data) {
   
   sysCurrentQh.textContent = `Sfert Curent: ${data.qh}`;
   sysImbalance.textContent = `${data.imbalanceMw > 0 ? '+' : ''}${data.imbalanceMw} MW`;
+  if(sysVolUp) sysVolUp.textContent = data.volUp !== "N/A" ? `${data.volUp} MW` : "- MW";
+  if(sysVolDown) sysVolDown.textContent = data.volDown !== "N/A" ? `${data.volDown} MW` : "- MW";
   
   if(isSurplus) {
       sysStatus.textContent = 'EXCEDENT (Surplus)';
@@ -856,7 +860,9 @@ async function fetchLiveTranselectrica() {
           qh: displayQh,
           imbalanceMw: parsedImbalance,
           priceDeficit: deficitPrice === "N/A" ? "N/A" : parseFloat(deficitPrice),
-          priceSurplus: surplusPrice === "N/A" ? "N/A" : parseFloat(surplusPrice)
+          priceSurplus: surplusPrice === "N/A" ? "N/A" : parseFloat(surplusPrice),
+          volUp: currentQh.sumQup !== null ? currentQh.sumQup : "N/A",
+          volDown: currentQh.sumQdn !== null ? currentQh.sumQdn : "N/A"
       });
     }
   } catch (error) {
