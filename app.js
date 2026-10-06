@@ -843,11 +843,16 @@ async function fetchLiveTranselectrica() {
       const hr = currentQh.hour; // 1-24
       const displayQh = `H${hr.toString().padStart(2, '0')} Q${(qhNum % 4) === 0 ? 4 : (qhNum % 4)}`;
 
+      // Prețurile Marginale pot veni din aFRR_Up/Down (Marginal Prices Overview) 
+      // sau fallback pe estimatedPrice (dacă aFRR nu e încă publicat pentru sfertul respectiv)
+      const deficitPrice = currentQh.aFRR_Up !== null ? currentQh.aFRR_Up : (currentQh.estimatedPricePositiveImbalance || 0);
+      const surplusPrice = currentQh.aFRR_Down !== null ? currentQh.aFRR_Down : (currentQh.estimatedPriceNegativeImbalance || 0);
+
       updateTranselectricaState({
           qh: displayQh,
           imbalanceMw: parseFloat(currentQh.estimatedSystemImbalance.toFixed(2)),
-          priceDeficit: parseFloat(currentQh.estimatedPricePositiveImbalance || 0),
-          priceSurplus: parseFloat(currentQh.estimatedPriceNegativeImbalance || 0)
+          priceDeficit: parseFloat(deficitPrice),
+          priceSurplus: parseFloat(surplusPrice)
       });
     }
   } catch (error) {
