@@ -819,35 +819,45 @@ function updateTranselectricaState(data) {
   sysMarginalSurplus.textContent = `${data.priceSurplus.toFixed(2)} €/MWh`;
 }
 
-// Mock date pentru a testa interfața până primești linkurile:
-setInterval(() => {
-    if(state.activeApp === 'id-arbitrage') {
-        const d = new Date();
-        const mins = d.getMinutes();
-        const qhNum = Math.floor(mins / 15) + 1; // 1, 2, 3 sau 4
-        const h = d.getHours();
-        const qh = `H${h.toString().padStart(2, '0')} Q${qhNum}`;
-        
-        // Randomizare pentru demo
-        const isSurp = Math.random() > 0.5;
-        const imbalanceMw = isSurp ? Math.floor(Math.random() * 300) : -Math.floor(Math.random() * 300);
-        
-        updateTranselectricaState({
-            qh: qh,
-            imbalanceMw: imbalanceMw,
-            priceDeficit: 150 + Math.random() * 50,
-            priceSurplus: 10 + Math.random() * 20
-        });
+// Procesare date live de la Vercel API (care face fetch la Transelectrica)
+async function fetchLiveTranselectrica() {
+  if (state.activeApp !== 'id-arbitrage') return;
+  
+  try {
+    const res = await fetch('/api/transelectrica');
+    if (!res.ok) throw new Error('API fetch failed');
+    const data = await res.json();
+    
+    if (!data.itemList || data.itemList.length === 0) return;
+    
+    // Găsim sfertul de oră curent (cel mai recent raportat, sau bazat pe timestamp)
+    // Pentru siguranță, luăm ultimul element din listă care conține date
+    // Sortăm descrescător după "from" ca să fim siguri că primul e cel mai recent
+    const sorted = data.itemList.sort((a, b) => new Date(b.timeInterval.from) - new Date(a.timeInterval.from));
+    
+    // Uneori ultimele pot fi goale (null la preturi). Căutăm primul care are estimatedSystemImbalance valid
+    const currentQh = sorted.find(item => item.estimatedSystemImbalance !== null && item.estimatedSystemImbalance !== undefined);
+    
+    if (currentQh) {
+      const qhNum = currentQh.ISP; // 1-96
+      const hr = currentQh.hour; // 1-24
+      const displayQh = `H${hr.toString().padStart(2, '0')} Q${(qhNum % 4) === 0 ? 4 : (qhNum % 4)}`;
+
+      updateTranselectricaState({
+          qh: displayQh,
+          imbalanceMw: parseFloat(currentQh.estimatedSystemImbalance.toFixed(2)),
+          priceDeficit: parseFloat(currentQh.estimatedPricePositiveImbalance || 0),
+          priceSurplus: parseFloat(currentQh.estimatedPriceNegativeImbalance || 0)
+      });
     }
-}, 15000); // Se updatează la 15 secunde vizual pentru demo
+  } catch (error) {
+    console.error("Failed to load Transelectrica live data:", error);
+  }
+}
+
+// Actualizare o dată la minut
+setInterval(fetchLiveTranselectrica, 60000); 
 
 // Inițializare la pornire tab
-setTimeout(() => {
-    updateTranselectricaState({
-        qh: "H13 Q2",
-        imbalanceMw: -145,
-        priceDeficit: 182.4,
-        priceSurplus: 45.2
-    });
-}, 500);
+setTimeout(fetchLiveTranselectrica, 1000);
 
