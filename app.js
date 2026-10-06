@@ -709,3 +709,72 @@ function recalculateArbitrage() {
     input.addEventListener('input', updateArbitrageData);
   }
 });
+
+// ================= BRM SCANNER LOGIC =================
+const scanBrmBtn = document.getElementById('scanBrmBtn');
+const brmSuggestions = document.getElementById('brmSuggestions');
+const brmSuggBuyPrice = document.getElementById('brmSuggBuyPrice');
+const brmSuggSellPrice = document.getElementById('brmSuggSellPrice');
+const brmSuggBuyQh = document.getElementById('brmSuggBuyQh');
+const brmSuggSellQh = document.getElementById('brmSuggSellQh');
+const brmSuggCost = document.getElementById('brmSuggCost');
+const brmSuggRev = document.getElementById('brmSuggRev');
+const brmSuggProfit = document.getElementById('brmSuggProfit');
+
+if (scanBrmBtn) {
+  scanBrmBtn.addEventListener('click', async () => {
+    scanBrmBtn.textContent = 'Se scanează...';
+    scanBrmBtn.disabled = true;
+    brmSuggestions.style.display = 'none';
+
+    // Simulare Scraping din BRM (deoarece nu există un API public direct)
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Aici s-ar face fetch către un endpoint de backend (ex: Puppeteer)
+    // Momentan generăm o oportunitate de mock bazată pe spread
+    const randomBuy = 30 + Math.random() * 20;  // 30 - 50 EUR
+    const randomSell = 120 + Math.random() * 50; // 120 - 170 EUR
+    const bestBuyPrice = parseFloat(randomBuy.toFixed(2));
+    const bestSellPrice = parseFloat(randomSell.toFixed(2));
+    
+    const qtyMw = parseFloat(arbQtyMwInput.value) || 10;
+    
+    // Auto-completare input-uri ID Arbitrage
+    arbPriceBuyInput.value = bestBuyPrice;
+    arbPriceSellInput.value = bestSellPrice;
+    arbQhBuyInput.value = 'Q' + (Math.floor(Math.random() * 20) + 10);
+    arbQhSellInput.value = 'Q' + (Math.floor(Math.random() * 20) + 70);
+    updateArbitrageData();
+
+    // Calculăm costurile și veniturile
+    const result = calculateArbitrageID({
+      priceBuy: bestBuyPrice,
+      priceSell: bestSellPrice,
+      qtyMw: qtyMw
+    });
+
+    const cost = result.energyIn * bestBuyPrice;
+    const rev = result.energyOut * bestSellPrice;
+
+    // Actualizăm UI-ul pentru sugestii
+    brmSuggBuyPrice.textContent = bestBuyPrice.toFixed(2);
+    brmSuggSellPrice.textContent = bestSellPrice.toFixed(2);
+    brmSuggBuyQh.textContent = arbQhBuyInput.value;
+    brmSuggSellQh.textContent = arbQhSellInput.value;
+    
+    brmSuggCost.textContent = formatCurrency(cost) + ' €';
+    brmSuggRev.textContent = formatCurrency(rev) + ' €';
+    brmSuggProfit.textContent = formatCurrency(result.profitEur) + ' €';
+
+    if(result.profitEur > 0) {
+        brmSuggProfit.style.color = '#10b981'; // green
+    } else {
+        brmSuggProfit.style.color = 'var(--text-loss)';
+    }
+
+    brmSuggestions.style.display = 'block';
+    scanBrmBtn.textContent = 'Scanează Acum';
+    scanBrmBtn.disabled = false;
+  });
+}
+
