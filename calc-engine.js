@@ -120,6 +120,33 @@ function round4(val) {
   return Math.round((val + Number.EPSILON) * 10000) / 10000;
 }
 
+/**
+ * Arbitraj Pur pe Intraday
+ */
+function calculateArbitrageID({ priceBuy, priceSell, qtyMw }) {
+  const pBuy = parseFloat(priceBuy) || 0;
+  const pSell = parseFloat(priceSell) || 0;
+  const qty = parseFloat(qtyMw) || 0;
+
+  const rte = 0.85; // 85% Round Trip Efficiency
+  const spreadBrut = pSell - pBuy;
+  
+  // 15 minutes = 0.25h
+  const energyIn = qty * 0.25;
+  const energyOut = energyIn * rte;
+  
+  const profitNet = (energyOut * pSell) - (energyIn * pBuy);
+
+  return {
+    spread: round2(spreadBrut),
+    energyIn: round4(energyIn),
+    energyOut: round4(energyOut),
+    profitEur: round2(profitNet),
+    isProfit: profitNet > 0,
+    isLoss: profitNet < 0
+  };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { calculateSwitch, calculateAukeraSpread, round2, round4 };
+  module.exports = { calculateSwitch, calculateAukeraSpread, calculateArbitrageID, round2, round4 };
 }

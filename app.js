@@ -31,6 +31,14 @@ const DEFAULT_AUKERA = {
   ronRate: 5.3
 };
 
+const DEFAULT_ARBITRAGE = {
+  qhBuy: 'Q62',
+  qhSell: 'Q82',
+  priceBuy: 100,
+  priceSell: 150,
+  qtyMw: 10
+};
+
 // Application State
 const state = {
   activeApp: localStorage.getItem('pzu_active_app') || 'pzu', // 'pzu' | 'aukera' | 'id-arbitrage'
@@ -40,6 +48,7 @@ const state = {
   buyData: loadSavedData('pzu_calc_buy', DEFAULT_BUY),
   sellData: loadSavedData('pzu_calc_sell', DEFAULT_SELL),
   aukeraData: loadSavedData('aukera_calc_data', DEFAULT_AUKERA),
+  arbitrageData: loadSavedData('id_arb_data', DEFAULT_ARBITRAGE),
   isPinned: true
 };
 
@@ -60,6 +69,7 @@ function saveData() {
     localStorage.setItem('pzu_calc_buy', JSON.stringify(state.buyData));
     localStorage.setItem('pzu_calc_sell', JSON.stringify(state.sellData));
     localStorage.setItem('aukera_calc_data', JSON.stringify(state.aukeraData));
+    localStorage.setItem('id_arb_data', JSON.stringify(state.arbitrageData));
   } catch (e) {}
 }
 
@@ -124,6 +134,21 @@ const aukeraProfitHighlightDisplay = document.getElementById('aukeraProfitHighli
 
 const aukeraShareViberBtn = document.getElementById('aukeraShareViberBtn');
 const aukeraViberLabel = document.getElementById('aukeraViberLabel');
+
+// Arbitrage DOM Elements
+const arbQhBuyInput = document.getElementById('arbQhBuy');
+const arbQhSellInput = document.getElementById('arbQhSell');
+const arbPriceBuyInput = document.getElementById('arbPriceBuy');
+const arbPriceSellInput = document.getElementById('arbPriceSell');
+const arbQtyMwInput = document.getElementById('arbQtyMw');
+
+const arbSpreadDisplay = document.getElementById('arbSpreadDisplay');
+const arbEnergyInDisplay = document.getElementById('arbEnergyInDisplay');
+const arbEnergyOutDisplay = document.getElementById('arbEnergyOutDisplay');
+const arbProfitDisplay = document.getElementById('arbProfitDisplay');
+
+const valRamp = document.getElementById('valRamp');
+const valInverter = document.getElementById('valInverter');
 
 // Number formatting helpers
 function formatCurrency(val) {
@@ -208,7 +233,9 @@ function setApp(appName) {
     idArbitrageView.classList.add('active');
     windowTitle.textContent = 'Arbitraj ID';
     footerBrand.textContent = 'PowerPeak Trading • Arbitraj ID';
-    footerHint.textContent = 'În dezvoltare...';
+    footerHint.textContent = 'Scanare & Validare Baterie';
+    renderArbitrageInputs();
+    recalculateArbitrage();
   }
 }
 
@@ -620,3 +647,65 @@ if (closeModalBtn) {
 
 // Show What's New if updated (slight delay for better UX)
 setTimeout(checkWhatsNew, 600);
+
+// ================= ARBITRAGE ID LOGIC =================
+function renderArbitrageInputs() {
+  if (!arbQhBuyInput) return;
+  const d = state.arbitrageData;
+  arbQhBuyInput.value = d.qhBuy || '';
+  arbQhSellInput.value = d.qhSell || '';
+  arbPriceBuyInput.value = d.priceBuy || '';
+  arbPriceSellInput.value = d.priceSell || '';
+  arbQtyMwInput.value = d.qtyMw || '';
+}
+
+function updateArbitrageData() {
+  state.arbitrageData.qhBuy = arbQhBuyInput.value;
+  state.arbitrageData.qhSell = arbQhSellInput.value;
+  state.arbitrageData.priceBuy = parseFloat(arbPriceBuyInput.value) || 0;
+  state.arbitrageData.priceSell = parseFloat(arbPriceSellInput.value) || 0;
+  state.arbitrageData.qtyMw = parseFloat(arbQtyMwInput.value) || 0;
+  saveData();
+  recalculateArbitrage();
+}
+
+function recalculateArbitrage() {
+  if (!arbSpreadDisplay) return;
+  const d = state.arbitrageData;
+  // Fallback if calculateArbitrageID is missing temporarily
+  if (typeof calculateArbitrageID !== 'function') return;
+
+  const result = calculateArbitrageID(d);
+
+  arbSpreadDisplay.textContent = formatCurrency(result.spread) + ' / MWh';
+  arbEnergyInDisplay.textContent = formatMwh(result.energyIn) + ' MWh';
+  arbEnergyOutDisplay.textContent = formatMwh(result.energyOut) + ' MWh';
+  
+  if (result.isProfit) {
+    arbProfitDisplay.className = 'text-profit';
+    arbProfitDisplay.textContent = formatCurrency(result.profitEur);
+  } else if (result.isLoss) {
+    arbProfitDisplay.className = 'text-loss';
+    arbProfitDisplay.textContent = formatCurrency(result.profitEur);
+  } else {
+    arbProfitDisplay.className = '';
+    arbProfitDisplay.textContent = '0,00 €';
+  }
+
+  // Simple validations
+  if (d.qtyMw > 140) {
+    valInverter.textContent = '❌ Limita Invertor (Depășită 140MW)';
+    valInverter.style.color = 'var(--text-loss)';
+  } else {
+    valInverter.textContent = '✅ Limita Invertor (Sub 140MW)';
+    valInverter.style.color = 'var(--text-dim)';
+  }
+}
+
+[
+  arbQhBuyInput, arbQhSellInput, arbPriceBuyInput, arbPriceSellInput, arbQtyMwInput
+].forEach(input => {
+  if (input) {
+    input.addEventListener('input', updateArbitrageData);
+  }
+});

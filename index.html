@@ -288,13 +288,79 @@
       </div>
 
       <!-- ================= 3. ID ARBITRAGE VIEW ================= -->
-      <div id="idArbitrageView" class="calc-view" style="flex: 1; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
-        <div style="font-size: 56px; margin-bottom: 1.5rem; animation: pulse 2s infinite ease-in-out;">🚀</div>
-        <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 1rem; letter-spacing: 2px; text-transform: uppercase;">Coming Soon</h2>
-        <p style="font-size: 15px; opacity: 0.7; max-width: 280px; line-height: 1.6; margin-bottom: 2rem;">
-          Modulul inteligent pentru arbitraj Intraday cu scanare automată Trayport este în curs de dezvoltare.
-        </p>
-        <div style="width: 50px; height: 4px; background: var(--sell-accent); border-radius: 2px;"></div>
+      <div id="idArbitrageView" class="calc-view">
+        
+        <!-- Input Section -->
+        <section class="calc-section">
+          <div class="input-row">
+            <div class="input-group">
+              <label for="arbQhBuy">QH Cumpărare (-)</label>
+              <div class="input-wrapper">
+                <input type="text" id="arbQhBuy" placeholder="ex: Q62" autocomplete="off" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="arbQhSell">QH Vânzare (+)</label>
+              <div class="input-wrapper">
+                <input type="text" id="arbQhSell" placeholder="ex: Q82" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label for="arbPriceBuy">Preț Cumpărare ID (€)</label>
+              <div class="input-wrapper">
+                <input type="number" id="arbPriceBuy" placeholder="0.00" step="0.01" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="arbPriceSell">Preț Vânzare ID (€)</label>
+              <div class="input-wrapper">
+                <input type="number" id="arbPriceSell" placeholder="0.00" step="0.01" />
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group highlight-margin-row">
+              <label for="arbQtyMw">Cantitate Arbitraj (MW)</label>
+              <div class="input-wrapper">
+                <input type="number" id="arbQtyMw" placeholder="0" step="0.1" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Status / Validation constraints -->
+        <section class="calc-section" id="arbValidationSection" style="padding: 10px;">
+          <div style="font-size: 11px; color: var(--text-dim); display: flex; flex-direction: column; gap: 4px;">
+            <div class="validation-item" id="valRamp">✅ Rampa Continuă (Fără goluri)</div>
+            <div class="validation-item" id="valInverter">✅ Limita Invertor (Sub 140MW)</div>
+            <div class="validation-item" id="valSoc">✅ Baterie (RTE 85% aplicat)</div>
+          </div>
+        </section>
+
+        <!-- Output Section -->
+        <section class="calc-section output-section">
+          <div class="summary-line">
+            <span>Spread Brut ID:</span>
+            <strong id="arbSpreadDisplay">0.00 € / MWh</strong>
+          </div>
+          <div class="summary-line">
+            <span>Energie Cumpărată (In):</span>
+            <strong id="arbEnergyInDisplay">0.00 MWh</strong>
+          </div>
+          <div class="summary-line">
+            <span>Energie Vândută (Out):</span>
+            <strong id="arbEnergyOutDisplay">0.00 MWh</strong>
+          </div>
+          <div class="summary-line total-highlight">
+            <span>Profit Net Arbitraj:</span>
+            <strong id="arbProfitDisplay">0.00 €</strong>
+          </div>
+        </section>
+
       </div>
     </main>
 
