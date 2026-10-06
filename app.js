@@ -826,28 +826,37 @@ async function fetchLiveTranselectrica() {
     // Sortăm descrescător după "from" ca să fim siguri că primul e cel mai recent
     const sorted = data.itemList.sort((a, b) => new Date(b.timeInterval.from) - new Date(a.timeInterval.from));
     
-    // Uneori ultimele pot fi goale (null la preturi) sau "N/A". Căutăm primul care are valid
-    const currentQh = sorted.find(item => 
-      item.estimatedSystemImbalance !== null && 
-      item.estimatedSystemImbalance !== undefined && 
-      item.estimatedSystemImbalance !== "N/A"
-    );
+    // 1. Căutăm sfertul care se suprapune cu ORA EXACTĂ a PC-ului
+    const now = new Date();
+    let currentQh = sorted.find(item => {
+      const from = new Date(item.timeInterval.from);
+      const to = new Date(item.timeInterval.to);
+      return now >= from && now < to;
+    });
+    
+    // Fallback: Dacă ceasul PC-ului e dereglat sau Transelectrica nu a scos încă lista
+    if (!currentQh) {
+      currentQh = sorted[0];
+    }
     
     if (currentQh) {
-      const qhNum = currentQh.ISP; // 1-96
-      const hr = currentQh.hour; // 1-24
+      const qhNum = currentQh.ISP || 1; // 1-96
+      const hr = currentQh.hour || 1; // 1-24
       const displayQh = `H${hr.toString().padStart(2, '0')} Q${(qhNum % 4) === 0 ? 4 : (qhNum % 4)}`;
 
       // Prețurile Marginale pot veni din aFRR_Up/Down (Marginal Prices Overview) 
       // sau fallback pe estimatedPrice (dacă aFRR nu e încă publicat pentru sfertul respectiv)
       const deficitPrice = currentQh.aFRR_Up !== null ? currentQh.aFRR_Up : (currentQh.estimatedPricePositiveImbalance || 0);
       const surplusPrice = currentQh.aFRR_Down !== null ? currentQh.aFRR_Down : (currentQh.estimatedPriceNegativeImbalance || 0);
+      
+      const rawImbalance = currentQh.estimatedSystemImbalance;
+      const parsedImbalance = (rawImbalance === "N/A" || rawImbalance === null) ? "N/A" : parseFloat(rawImbalance);
 
       updateTranselectricaState({
           qh: displayQh,
-          imbalanceMw: parseFloat(currentQh.estimatedSystemImbalance.toFixed(2)),
-          priceDeficit: parseFloat(deficitPrice),
-          priceSurplus: parseFloat(surplusPrice)
+          imbalanceMw: parsedImbalance,
+          priceDeficit: deficitPrice === "N/A" ? "N/A" : parseFloat(deficitPrice),
+          priceSurplus: surplusPrice === "N/A" ? "N/A" : parseFloat(surplusPrice)
       });
     }
   } catch (error) {
