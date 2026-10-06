@@ -14,7 +14,10 @@ export default async function handler(req, res) {
     // Transelectrica uses intervals like this for the operational day.
     // For simplicity, we just take the last 24h.
     const toDate = new Date();
-    toDate.setMinutes(toDate.getMinutes() + 60); // give some buffer
+    // Aliniere fix la minutul 0, secunda 0, pentru ca Transelectrica să ne dea date corecte (sferturi fixe)
+    toDate.setMinutes(0, 0, 0);
+    toDate.setHours(toDate.getHours() + 2); // punem un mic buffer în viitor
+    
     const fromDate = new Date(toDate.getTime() - 24 * 60 * 60 * 1000);
 
     const fromStr = fromDate.toISOString();
