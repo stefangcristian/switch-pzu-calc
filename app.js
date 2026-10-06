@@ -871,3 +871,12 @@ setInterval(fetchLiveTranselectrica, 60000);
 // Inițializare la pornire tab
 setTimeout(fetchLiveTranselectrica, 1000);
 
+// Popup temporar pentru confirmare update (Vercel)
+setTimeout(() => {
+    const toast = document.getElementById('updateToast');
+    if(toast) {
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+}, 1500);
+

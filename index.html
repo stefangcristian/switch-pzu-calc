@@ -470,5 +470,16 @@
       });
     }
   </script>
+  
+  <!-- Toast Notification for Updates -->
+  <div id="updateToast" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #10b981; color: white; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; animation: slideInUp 0.3s ease-out;">
+      Aplicația a fost actualizată cu succes! ✨
+  </div>
+  <style>
+    @keyframes slideInUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
 </body>
 </html>
