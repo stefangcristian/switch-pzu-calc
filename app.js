@@ -873,7 +873,7 @@ setTimeout(fetchLiveTranselectrica, 1000);
 
 // Popup temporar pentru confirmare update (Vercel)
 setTimeout(() => {
-    const toast = document.getElementById('updateToast');
+    const toast = document.getElementById('successUpdateToast');
     if(toast) {
         toast.style.display = 'block';
         setTimeout(() => { toast.style.display = 'none'; }, 4000);
