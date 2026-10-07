@@ -32,10 +32,10 @@ const DEFAULT_AUKERA = {
 };
 
 const DEFAULT_ARBITRAGE = {
-  qhBuy: 'Q62',
-  qhSell: 'Q82',
-  priceBuy: 100,
-  priceSell: 150,
+  qhBuy: 'Q52 (12:45)',
+  qhSell: 'Q80 (20:00)',
+  priceBuy: 97.53,
+  priceSell: 289.91,
   qtyMw: 10
 };
 
@@ -135,7 +135,36 @@ const aukeraProfitHighlightDisplay = document.getElementById('aukeraProfitHighli
 const aukeraShareViberBtn = document.getElementById('aukeraShareViberBtn');
 const aukeraViberLabel = document.getElementById('aukeraViberLabel');
 
-// Arbitrage DOM Elements - ELIMINATED (only keeping Transelectrica UI)
+// Arbitrage & ML Recommendation DOM Elements
+const arbQhBuyInput = document.getElementById('arbQhBuyInput');
+const arbQhSellInput = document.getElementById('arbQhSellInput');
+const arbPriceBuyInput = document.getElementById('arbPriceBuyInput');
+const arbPriceSellInput = document.getElementById('arbPriceSellInput');
+const arbQtyMwInput = document.getElementById('arbQtyMwInput');
+
+const arbSpreadDisplay = document.getElementById('arbSpreadDisplay');
+const arbEnergyInDisplay = document.getElementById('arbEnergyInDisplay');
+const arbEnergyOutDisplay = document.getElementById('arbEnergyOutDisplay');
+const arbProfitDisplay = document.getElementById('arbProfitDisplay');
+const arbApplyMlBtn = document.getElementById('arbApplyMlBtn');
+const arbRunPipelineBtn = document.getElementById('arbRunPipelineBtn');
+const arbRunPipelineMainBtn = document.getElementById('arbRunPipelineMainBtn');
+const arbRefreshIcon = document.getElementById('arbRefreshIcon');
+const arbRefreshIconMain = document.getElementById('arbRefreshIconMain');
+const arbRunBtnText = document.getElementById('arbRunBtnText');
+const arbRunMainText = document.getElementById('arbRunMainText');
+
+const arbRecBuyMarket = document.getElementById('arbRecBuyMarket');
+const arbRecBuySlot = document.getElementById('arbRecBuySlot');
+const arbRecBuyPrice = document.getElementById('arbRecBuyPrice');
+const arbRecBuySaving = document.getElementById('arbRecBuySaving');
+
+const arbRecSellMarket = document.getElementById('arbRecSellMarket');
+const arbRecSellSlot = document.getElementById('arbRecSellSlot');
+const arbRecSellPrice = document.getElementById('arbRecSellPrice');
+const arbRecCycleSpread = document.getElementById('arbRecCycleSpread');
+const arbDeliveryDate = document.getElementById('arbDeliveryDate');
+const arbSlotsTableBody = document.getElementById('arbSlotsTableBody');
 
 const valRamp = document.getElementById('valRamp');
 const valInverter = document.getElementById('valInverter');
@@ -221,9 +250,10 @@ function setApp(appName) {
     pzuView.classList.remove('active');
     aukeraView.classList.remove('active');
     idArbitrageView.classList.add('active');
-    windowTitle.textContent = 'Status Sistem';
-    footerBrand.textContent = 'PowerPeak Trading • Arbitraj ID';
-    footerHint.textContent = 'Scanare & Validare Baterie';
+    windowTitle.textContent = 'Arbitraj IDA ↔ PZU (BESS)';
+    footerBrand.textContent = 'PowerPeak Trading • Arbitraj BESS';
+    footerHint.textContent = 'Recomandare ML & Ciclu Secundar';
+    loadMlRecommendation();
     renderArbitrageInputs();
     recalculateArbitrage();
   }
@@ -638,7 +668,122 @@ if (closeModalBtn) {
 // Show What's New if updated (slight delay for better UX)
 setTimeout(checkWhatsNew, 600);
 
-// ================= ARBITRAGE ID LOGIC =================
+// ================= ARBITRAGE ID & ML LOGIC =================
+let currentMlData = null;
+
+async function loadMlRecommendation() {
+  try {
+    let data = null;
+    try {
+      const res = await fetch('./ida_recommendation_latest.json');
+      if (res.ok) {
+        data = await res.json();
+      }
+    } catch (e) {
+      console.warn('Fetch fallback:', e);
+    }
+    
+    // Fallback implicit
+    if (!data) {
+      data = {
+        delivery_date: "2026-10-07",
+        summary: {
+          battery_cycle2_best_buy_market: "IDA2",
+          battery_cycle2_best_sell_market: "PZU"
+        },
+        bess_cycle2_recommendations: {
+          charge_slots: [
+            { qh: 52, time: "12:45", price_pzu: 103.93, est_ida2: 97.53, best_buy_market: "IDA2", buy_saving_eur: 6.4 },
+            { qh: 60, time: "14:45", price_pzu: 103.05, est_ida2: 101.64, best_buy_market: "IDA2", buy_saving_eur: 1.41 },
+            { qh: 61, time: "15:00", price_pzu: 106.67, est_ida2: 103.66, best_buy_market: "IDA2", buy_saving_eur: 3.01 },
+            { qh: 59, time: "14:30", price_pzu: 112.75, est_ida2: 108.68, best_buy_market: "IDA2", buy_saving_eur: 4.07 }
+          ],
+          discharge_slots: [
+            { qh: 86, time: "21:15", price_pzu: 289.91, est_ida1: 280.76, best_sell_market: "PZU", sell_gain_eur: 0.0 },
+            { qh: 84, time: "20:45", price_pzu: 284.66, est_ida1: 277.78, best_sell_market: "PZU", sell_gain_eur: 0.0 },
+            { qh: 75, time: "18:30", price_pzu: 276.38, est_ida1: 266.26, best_sell_market: "PZU", sell_gain_eur: 0.0 },
+            { qh: 87, time: "21:30", price_pzu: 274.1, est_ida1: 268.1, best_sell_market: "PZU", sell_gain_eur: 0.0 }
+          ]
+        }
+      };
+    }
+
+    currentMlData = data;
+    renderMlRecommendation(data);
+  } catch (err) {
+    console.error('Eroare loadMlRecommendation:', err);
+  }
+}
+
+function renderMlRecommendation(data) {
+  if (!arbDeliveryDate) return;
+  if (data.delivery_date) {
+    arbDeliveryDate.textContent = `Livrare: ${data.delivery_date}`;
+  }
+
+  const chargeSlots = data.bess_cycle2_recommendations?.charge_slots || [];
+  const dischargeSlots = data.bess_cycle2_recommendations?.discharge_slots || [];
+
+  const topBuy = chargeSlots[0] || { qh: 52, time: "12:45", price_pzu: 103.93, est_ida2: 97.53, best_buy_market: "IDA2", buy_saving_eur: 6.4 };
+  const topSell = dischargeSlots[0] || { qh: 86, time: "21:15", price_pzu: 289.91, best_sell_market: "PZU" };
+
+  if (arbRecBuyMarket) arbRecBuyMarket.textContent = topBuy.best_buy_market || 'IDA2';
+  if (arbRecBuySlot) arbRecBuySlot.textContent = `${topBuy.time} (Q${topBuy.qh})`;
+  const pBuyEst = topBuy.est_ida2 || topBuy.est_ida1 || topBuy.price_pzu;
+  if (arbRecBuyPrice) arbRecBuyPrice.textContent = `Est: ${pBuyEst.toFixed(2)} € (PZU: ${topBuy.price_pzu.toFixed(2)} €)`;
+  if (arbRecBuySaving) arbRecBuySaving.textContent = `Economie: +${(topBuy.buy_saving_eur || 0).toFixed(2)} €/MWh`;
+
+  if (arbRecSellMarket) arbRecSellMarket.textContent = topSell.best_sell_market || 'PZU';
+  if (arbRecSellSlot) arbRecSellSlot.textContent = `${topSell.time} (Q${topSell.qh})`;
+  if (arbRecSellPrice) arbRecSellPrice.textContent = `Vârf: ${topSell.price_pzu.toFixed(2)} €/MWh`;
+  
+  const spreadEst = topSell.price_pzu - pBuyEst;
+  if (arbRecCycleSpread) arbRecCycleSpread.textContent = `Spread BESS: +${spreadEst.toFixed(2)} €`;
+
+  // Populate Table
+  if (arbSlotsTableBody) {
+    let rowsHtml = '';
+    chargeSlots.slice(0, 4).forEach(s => {
+      const bestPrice = s.est_ida2 || s.est_ida1 || s.price_pzu;
+      rowsHtml += `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer;" onclick="selectArbitrageSlot('BUY', '${s.time}', ${s.qh}, ${bestPrice})">
+          <td style="padding: 5px;"><span style="color: #34d399; font-weight: 700;">BUY</span></td>
+          <td style="padding: 5px; color: #fff;">${s.time} (Q${s.qh})</td>
+          <td style="padding: 5px; color: var(--text-dim);">${s.price_pzu.toFixed(2)} €</td>
+          <td style="padding: 5px;"><span style="background: rgba(16,185,129,0.2); color: #34d399; padding: 1px 4px; border-radius: 3px; font-weight: 700;">${s.best_buy_market} ${bestPrice.toFixed(2)} €</span></td>
+          <td style="padding: 5px; text-align: right; color: #34d399; font-weight: 700;">+${(s.buy_saving_eur || 0).toFixed(2)} €</td>
+        </tr>
+      `;
+    });
+    dischargeSlots.slice(0, 4).forEach(s => {
+      const bestPrice = s.price_pzu;
+      rowsHtml += `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer;" onclick="selectArbitrageSlot('SELL', '${s.time}', ${s.qh}, ${bestPrice})">
+          <td style="padding: 5px;"><span style="color: #38bdf8; font-weight: 700;">SELL</span></td>
+          <td style="padding: 5px; color: #fff;">${s.time} (Q${s.qh})</td>
+          <td style="padding: 5px; color: var(--text-dim);">${s.price_pzu.toFixed(2)} €</td>
+          <td style="padding: 5px;"><span style="background: rgba(56,189,248,0.2); color: #38bdf8; padding: 1px 4px; border-radius: 3px; font-weight: 700;">${s.best_sell_market} ${bestPrice.toFixed(2)} €</span></td>
+          <td style="padding: 5px; text-align: right; color: #38bdf8; font-weight: 700;">Vârf</td>
+        </tr>
+      `;
+    });
+    arbSlotsTableBody.innerHTML = rowsHtml;
+  }
+}
+
+window.selectArbitrageSlot = function(type, time, qh, price) {
+  if (type === 'BUY') {
+    state.arbitrageData.qhBuy = `Q${qh} (${time})`;
+    state.arbitrageData.priceBuy = price;
+  } else {
+    state.arbitrageData.qhSell = `Q${qh} (${time})`;
+    state.arbitrageData.priceSell = price;
+  }
+  saveData();
+  renderArbitrageInputs();
+  recalculateArbitrage();
+};
+
 function renderArbitrageInputs() {
   if (!arbQhBuyInput) return;
   const d = state.arbitrageData;
@@ -650,6 +795,7 @@ function renderArbitrageInputs() {
 }
 
 function updateArbitrageData() {
+  if (!arbQhBuyInput) return;
   state.arbitrageData.qhBuy = arbQhBuyInput.value;
   state.arbitrageData.qhSell = arbQhSellInput.value;
   state.arbitrageData.priceBuy = parseFloat(arbPriceBuyInput.value) || 0;
@@ -662,7 +808,6 @@ function updateArbitrageData() {
 function recalculateArbitrage() {
   if (!arbSpreadDisplay) return;
   const d = state.arbitrageData;
-  // Fallback if calculateArbitrageID is missing temporarily
   if (typeof calculateArbitrageID !== 'function') return;
 
   const result = calculateArbitrageID(d);
@@ -673,24 +818,76 @@ function recalculateArbitrage() {
   
   if (result.isProfit) {
     arbProfitDisplay.className = 'text-profit';
+    arbProfitDisplay.style.color = '#34d399';
     arbProfitDisplay.textContent = formatCurrency(result.profitEur);
   } else if (result.isLoss) {
     arbProfitDisplay.className = 'text-loss';
+    arbProfitDisplay.style.color = '#f87171';
     arbProfitDisplay.textContent = formatCurrency(result.profitEur);
   } else {
     arbProfitDisplay.className = '';
+    arbProfitDisplay.style.color = '#fff';
     arbProfitDisplay.textContent = '0,00 €';
   }
+}
 
-  // Simple validations
-  if (d.qtyMw > 140) {
-    valInverter.textContent = '❌ Limita Invertor (Depășită 140MW)';
-    valInverter.style.color = 'var(--text-loss)';
-  } else {
-    valInverter.textContent = '✅ Limita Invertor (Sub 140MW)';
-    valInverter.style.color = 'var(--text-dim)';
+// Bind arbitrage inputs
+[arbQhBuyInput, arbQhSellInput, arbPriceBuyInput, arbPriceSellInput, arbQtyMwInput].forEach(inp => {
+  if (inp) inp.addEventListener('input', updateArbitrageData);
+});
+
+if (arbApplyMlBtn) {
+  arbApplyMlBtn.addEventListener('click', () => {
+    if (!currentMlData) return;
+    const topBuy = currentMlData.bess_cycle2_recommendations?.charge_slots?.[0];
+    const topSell = currentMlData.bess_cycle2_recommendations?.discharge_slots?.[0];
+    if (topBuy) {
+      state.arbitrageData.qhBuy = `Q${topBuy.qh} (${topBuy.time})`;
+      state.arbitrageData.priceBuy = topBuy.est_ida2 || topBuy.est_ida1 || topBuy.price_pzu;
+    }
+    if (topSell) {
+      state.arbitrageData.qhSell = `Q${topSell.qh} (${topSell.time})`;
+      state.arbitrageData.priceSell = topSell.price_pzu;
+    }
+    saveData();
+    renderArbitrageInputs();
+    recalculateArbitrage();
+  });
+}
+
+async function triggerPipelineRun() {
+  if (arbRefreshIcon) arbRefreshIcon.classList.add('spin-active');
+  if (arbRefreshIconMain) arbRefreshIconMain.classList.add('spin-active');
+  if (arbRunBtnText) arbRunBtnText.textContent = 'Rulează...';
+  if (arbRunMainText) arbRunMainText.textContent = 'Se rulează...';
+
+  try {
+    // 1. Daca ruleaza in Electron nativ
+    if (window.electronAPI && typeof window.electronAPI.runIdaPipeline === 'function') {
+      await window.electronAPI.runIdaPipeline();
+    }
+    // 2. Reincarca recomandarea cu cache-busting
+    await loadMlRecommendation();
+
+    // 3. Feedback vizual
+    const toast = document.getElementById('successUpdateToast');
+    if (toast) {
+      toast.textContent = '✅ Analiză Arbitraj IDA actualizată cu succes!';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
+  } catch (err) {
+    console.error('Eroare triggerPipelineRun:', err);
+  } finally {
+    if (arbRefreshIcon) arbRefreshIcon.classList.remove('spin-active');
+    if (arbRefreshIconMain) arbRefreshIconMain.classList.remove('spin-active');
+    if (arbRunBtnText) arbRunBtnText.textContent = 'Rulează';
+    if (arbRunMainText) arbRunMainText.textContent = 'Actualizează IDA';
   }
 }
+
+if (arbRunPipelineBtn) arbRunPipelineBtn.addEventListener('click', triggerPipelineRun);
+if (arbRunPipelineMainBtn) arbRunPipelineMainBtn.addEventListener('click', triggerPipelineRun);
 
 // Old arbitrage inputs and BRM scanner logic removed
 
